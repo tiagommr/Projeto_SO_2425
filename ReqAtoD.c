@@ -1,7 +1,3 @@
-//
-// Created by tiago on 19-04-2025.
-//
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,13 +18,32 @@ pid_t child_pids[MAX_FILES];
 int pipes[MAX_FILES][2];
 int num_children = 0;
 
-// Funcoes auxiliares para comunicacao segura
+// Variável partilhada para progresso
+int *sensores_processados;
+int total_sensores = 0;
+
+// Função para mostrar barra de progresso
+void mostrar_barra_progresso() {
+    int feitos = *sensores_processados;
+    int percentagem = (int)(((float)feitos / total_sensores) * 100);
+
+    printf("\rProgresso: [");
+    int blocos = percentagem / 10;
+    for (int i = 0; i < 10; i++) {
+        if (i < blocos) printf("=");
+        else if (i == blocos) printf(">");
+        else printf(" ");
+    }
+    printf("] %d%%", percentagem);
+    fflush(stdout);
+}
+
 ssize_t readn(int fd, void *ptr, size_t n) {
     size_t nleft = n;
     ssize_t nread;
     while (nleft > 0) {
         if ((nread = read(fd, ptr, nleft)) <= 0) {
-            if (nread == 0) break; // EOF
+            if (nread == 0) break;
             return -1;
         }
         nleft -= nread;
@@ -51,7 +66,6 @@ ssize_t writen(int fd, const void *ptr, size_t n) {
     return (n - nleft);
 }
 
-// Trata SIGINT para matar filhos
 void handle_sigint(int sig) {
     printf("\n[SINAL] SIGINT recebido. A terminar processos filho...\n");
     for (int i = 0; i < num_children; i++) {
@@ -109,7 +123,7 @@ void process_file(const char *input_dir, const char *filename, int pipefd) {
         perror("Erro ao mapear ficheiro");
         close(fd);
         exit(1);
-    }\
+    }
 
     close(fd);
 
@@ -142,15 +156,14 @@ void process_file(const char *input_dir, const char *filename, int pipefd) {
 
                 if (is_out_of_bounds(filename, valor)) {
                     if (em_fora_limite) {
-                        fora_limite += difftime(tempo_atual, tempo_anterior) / 3600.0; // Tempo real em horas
+                        fora_limite += difftime(tempo_atual, tempo_anterior) / 3600.0;
                     }
-                    tempo_anterior = tempo_atual; // Atualiza o tempo anterior mesmo dentro da sequência
+                    tempo_anterior = tempo_atual;
                     em_fora_limite = 1;
                 } else {
-                    em_fora_limite = 0; // Reset da sequência se o valor voltar a ser aceitável
-                    tempo_anterior = tempo_atual; // Atualiza para manter correto
+                    em_fora_limite = 0;
+                    tempo_anterior = tempo_atual;
                 }
-
             }
 
             start = end + 1;
@@ -162,11 +175,11 @@ void process_file(const char *input_dir, const char *filename, int pipefd) {
 
     double media = count > 0 ? soma / count : 0.0;
 
-    // Enviar resultado para o pai
     char output[BUFFER_SIZE];
     snprintf(output, sizeof(output), "%d;%s;%.2f;%.2f\n", getpid(), filename, media, fora_limite);
     writen(pipefd, output, strlen(output));
 
+    //sleep(1);
     exit(0);
 }
 
@@ -199,6 +212,7 @@ int main(int argc, char *argv[]) {
 
     printf("Foram encontrados %d ficheiros de sensores:\n", file_count);
     for (int i = 0; i < file_count; i++) {
+        //sleep(1);
         printf(" -> %s\n", filenames[i]);
 
         if (pipe(pipes[i]) == -1) {
@@ -208,15 +222,24 @@ int main(int argc, char *argv[]) {
 
         pid_t pid = fork();
         if (pid == 0) {
-            close(pipes[i][0]); // Fecha leitura
+            close(pipes[i][0]);
             process_file(input_dir, filenames[i], pipes[i][1]);
         } else if (pid > 0) {
             child_pids[num_children++] = pid;
-            close(pipes[i][1]); // Fecha escrita
+            close(pipes[i][1]);
         } else {
             perror("Erro no fork");
         }
     }
+
+    sensores_processados = mmap(NULL, sizeof(int), PROT_READ | PROT_WRITE,
+                                 MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    if (sensores_processados == MAP_FAILED) {
+        perror("Erro ao criar mmap partilhado");
+        exit(1);
+    }
+    *sensores_processados = 0;
+    total_sensores = file_count;
 
     FILE *out = fopen("relatorio_final.txt", "w");
     if (!out) {
@@ -224,27 +247,40 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    // Receber dados dos filhos
-    char buffer[BUFFER_SIZE];
-    for (int i = 0; i < num_children; i++) {
-        ssize_t n = readn(pipes[i][0], buffer, BUFFER_SIZE);
-        if (n > 0) {
-            buffer[n] = '\0';
-            fprintf(out, "%s", buffer);
+    int sensores_terminados = 0;
+    int status;
+
+    while (sensores_terminados < num_children) {
+        for (int i = 0; i < num_children; i++) {
+            if (child_pids[i] == -1) continue;
+
+            pid_t pid = waitpid(child_pids[i], &status, WNOHANG);
+            if (pid > 0) {
+                char buffer[BUFFER_SIZE];
+                ssize_t n = readn(pipes[i][0], buffer, BUFFER_SIZE);
+                if (n > 0) {
+                    buffer[n] = '\0';
+                    fprintf(out, "%s", buffer);
+                }
+                close(pipes[i][0]);
+                (*sensores_processados)++;
+                child_pids[i] = -1;
+                sensores_terminados++;
+            }
         }
-        close(pipes[i][0]);
+
+        mostrar_barra_progresso();  // Atualiza sempre a barra
+        fflush(stdout);
+        usleep(5000000);
     }
+
+    mostrar_barra_progresso(); // Mostra 100% garantido no fim
+    printf("\nTodos os processos filho terminaram com sucesso. Relatorio gerado.\n");
 
     fclose(out);
-
-    for (int i = 0; i < num_children; i++) {
-        waitpid(child_pids[i], NULL, 0);
-    }
-
     for (int i = 0; i < file_count; i++) {
         free(filenames[i]);
     }
-
-    printf("Todos os processos filho terminaram com sucesso. Relatorio gerado.\n");
+    munmap(sensores_processados, sizeof(int));
     return 0;
 }
