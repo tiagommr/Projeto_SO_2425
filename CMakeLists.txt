@@ -4,5 +4,7 @@ project(Projeto_SO_2425 C)
 set(CMAKE_C_STANDARD 99)
 
 add_executable(Projeto_SO_2425
-        ReqAtoD.c
-        ReqE.c)
+        F1ReqAtoD.c
+        F1ReqE.c
+        F2ReqAB.c
+        F2ReqC.c)

@@ -1,3 +1,4 @@
+/*
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -284,3 +285,4 @@ int main(int argc, char *argv[]) {
     munmap(sensores_processados, sizeof(int));
     return 0;
 }
+*/

@@ -1,3 +1,4 @@
+/*
 //
 // Created by tiago on 14-05-2025.
 //
@@ -19,7 +20,7 @@
 #define TIME_FORMAT "%Y-%m-%dT%H:%M:%S"
 #define BUFFER_SIZE 256
 #define SOCKET_PATH "/tmp/schoolair_socket"
-/*
+
 pid_t child_pids[MAX_FILES];
 int num_children = 0;
 int *sensores_processados;

@@ -49,14 +49,26 @@ cmake_ninja_workdir = /home/tiago/CLionProjects/Projeto_SO_2425/cmake-build-debu
 
 build cmake_object_order_depends_target_Projeto_SO_2425: phony || .
 
-build CMakeFiles/Projeto_SO_2425.dir/ReqAtoD.c.o: C_COMPILER__Projeto_SO_2425_unscanned_Debug /home/tiago/CLionProjects/Projeto_SO_2425/ReqAtoD.c || cmake_object_order_depends_target_Projeto_SO_2425
-  DEP_FILE = CMakeFiles/Projeto_SO_2425.dir/ReqAtoD.c.o.d
+build CMakeFiles/Projeto_SO_2425.dir/F1ReqAtoD.c.o: C_COMPILER__Projeto_SO_2425_unscanned_Debug /home/tiago/CLionProjects/Projeto_SO_2425/F1ReqAtoD.c || cmake_object_order_depends_target_Projeto_SO_2425
+  DEP_FILE = CMakeFiles/Projeto_SO_2425.dir/F1ReqAtoD.c.o.d
   FLAGS = -g -std=gnu99 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles/Projeto_SO_2425.dir
   OBJECT_FILE_DIR = CMakeFiles/Projeto_SO_2425.dir
 
-build CMakeFiles/Projeto_SO_2425.dir/ReqE.c.o: C_COMPILER__Projeto_SO_2425_unscanned_Debug /home/tiago/CLionProjects/Projeto_SO_2425/ReqE.c || cmake_object_order_depends_target_Projeto_SO_2425
-  DEP_FILE = CMakeFiles/Projeto_SO_2425.dir/ReqE.c.o.d
+build CMakeFiles/Projeto_SO_2425.dir/F1ReqE.c.o: C_COMPILER__Projeto_SO_2425_unscanned_Debug /home/tiago/CLionProjects/Projeto_SO_2425/F1ReqE.c || cmake_object_order_depends_target_Projeto_SO_2425
+  DEP_FILE = CMakeFiles/Projeto_SO_2425.dir/F1ReqE.c.o.d
+  FLAGS = -g -std=gnu99 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles/Projeto_SO_2425.dir
+  OBJECT_FILE_DIR = CMakeFiles/Projeto_SO_2425.dir
+
+build CMakeFiles/Projeto_SO_2425.dir/F2ReqAB.c.o: C_COMPILER__Projeto_SO_2425_unscanned_Debug /home/tiago/CLionProjects/Projeto_SO_2425/F2ReqAB.c || cmake_object_order_depends_target_Projeto_SO_2425
+  DEP_FILE = CMakeFiles/Projeto_SO_2425.dir/F2ReqAB.c.o.d
+  FLAGS = -g -std=gnu99 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles/Projeto_SO_2425.dir
+  OBJECT_FILE_DIR = CMakeFiles/Projeto_SO_2425.dir
+
+build CMakeFiles/Projeto_SO_2425.dir/F2ReqC.c.o: C_COMPILER__Projeto_SO_2425_unscanned_Debug /home/tiago/CLionProjects/Projeto_SO_2425/F2ReqC.c || cmake_object_order_depends_target_Projeto_SO_2425
+  DEP_FILE = CMakeFiles/Projeto_SO_2425.dir/F2ReqC.c.o.d
   FLAGS = -g -std=gnu99 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles/Projeto_SO_2425.dir
   OBJECT_FILE_DIR = CMakeFiles/Projeto_SO_2425.dir
@@ -69,7 +81,7 @@ build CMakeFiles/Projeto_SO_2425.dir/ReqE.c.o: C_COMPILER__Projeto_SO_2425_unsca
 #############################################
 # Link the executable Projeto_SO_2425
 
-build Projeto_SO_2425: C_EXECUTABLE_LINKER__Projeto_SO_2425_Debug CMakeFiles/Projeto_SO_2425.dir/ReqAtoD.c.o CMakeFiles/Projeto_SO_2425.dir/ReqE.c.o
+build Projeto_SO_2425: C_EXECUTABLE_LINKER__Projeto_SO_2425_Debug CMakeFiles/Projeto_SO_2425.dir/F1ReqAtoD.c.o CMakeFiles/Projeto_SO_2425.dir/F1ReqE.c.o CMakeFiles/Projeto_SO_2425.dir/F2ReqAB.c.o CMakeFiles/Projeto_SO_2425.dir/F2ReqC.c.o
   DEP_FILE = CMakeFiles/Projeto_SO_2425.dir/link.d
   FLAGS = -g
   LINK_FLAGS = -Wl,--dependency-file=CMakeFiles/Projeto_SO_2425.dir/link.d
